@@ -152,7 +152,7 @@ def create_langgraph_agent(model: str, file_path: str, return_text: str, chunk_s
         )
     elif model=="groq":
         llm=ChatGroq(
-            model="qwen-qwq-32b",
+            model="openai/gpt-oss-120b",
             api_key=groq_api_key
         )
 

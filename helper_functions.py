@@ -140,7 +140,7 @@ def get_suggestions(text,agent,api_keys: dict):
         )
 
         model_groq = ChatGroq(
-            model="qwen-qwq-32b",
+            model="openai/gpt-oss-120b",
             api_key=api_keys["GROQ_API_KEY"]
         )
 

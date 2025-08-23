@@ -254,8 +254,8 @@ def create_web_crawler_and_study_materials_agent(model="groq"):
 
     agent = create_react_agent(
         model=model,  
-        tools=tools,  # Keep the tools for structured outputs
-        state_modifier=system_prompt  # Allow direct responses
+        tools=tools  # Keep the tools for structured outputs
+        # state_modifier=system_prompt  # Allow direct responses
         # checkpointer=memory
     )
 

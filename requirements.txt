@@ -53,6 +53,7 @@ duckduckgo-search
 ipykernel
 jupyter
 pydantic
+pydantic[email]
 exception
 
 # Visualization
@@ -64,3 +65,12 @@ streamlit
 
 # install spacy web-sm
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz
+
+psycopg2-binary
+sqlalchemy
+
+fastapi
+uvicorn
+
+passlib[bcrypt]
+python-jose

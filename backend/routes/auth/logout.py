@@ -66,7 +66,7 @@ def delete_account(user: str = Depends(get_current_user), db: Session = Depends(
         return JSONResponse(
             status_code=500,
             content={
-                "status": True,
+                "status": False,
                 "message": "Internal Server Error",
                 "data": None
             }

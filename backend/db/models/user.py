@@ -25,7 +25,8 @@ class UserOut(BaseModel):
     last_login: Optional[datetime] = None
 
 class Login(BaseModel):
-    username: Annotated[str, Field(..., description="username of the user", examples=["someone231__"])]
+    # username: Annotated[str, Field(description="username of the user", examples=["someone231__"])]
+    username: Optional[str] = Field(default=None, description="Username of the user", examples=["someone231__"])
     email: Optional[EmailStr] = Field(None, description="Email of the user")
     password: str = Field(..., description="Password")
 
@@ -36,7 +37,16 @@ class Login(BaseModel):
         return self
 
 class TokenResponseSchema(BaseModel):
-
     access_token: Annotated[str, Field(..., description="")]
     refresh_token: str 
     token_type: Annotated[str, Field(default="bearer")]
+
+
+class UpdateUsername(BaseModel):
+    new_username: Annotated[str, Field(..., max_length=50)]
+
+class UpdatePassword(BaseModel):
+    new_password: Annotated[str, Field(...,min_length=10, max_length=255)]
+
+class RefreshTokenSchema(BaseModel):
+    refresh_token: str

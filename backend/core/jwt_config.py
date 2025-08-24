@@ -4,19 +4,16 @@ from passlib import hash
 from passlib.context import CryptContext
 from werkzeug.security import generate_password_hash, check_password_hash
 
-SECRET_KEY="visca_el_barca"
-REFRESH_SECRET_KEY="mes_que_un_club"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=5
-REFRESH_TOKEN_EXPIRE_MINUTES=24*60
+import os
+from dotenv import load_dotenv
 
-# pwd_context=CryptContext(schemes=["bcrypt"], deprecated="auto")
+load_dotenv()
 
-# def hash_password(password: str):
-#     return pwd_context.hash(password)
-
-# def verify_password(plain, hashed):
-#     return pwd_context.verify(plain, hashed)
+SECRET_KEY=os.getenv("JWT_SECRET_KEY")
+REFRESH_SECRET_KEY=os.getenv("JWT_SECRET_KEY_REFRESH")
+ALGORITHM=os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_MINUTES=int(os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES"))
 
 def hash_password(password: str):
     return generate_password_hash(password)
@@ -24,16 +21,15 @@ def hash_password(password: str):
 def verify_password(plain, hashed):
     return check_password_hash(hashed, plain)
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, tv: int, expires_delta: timedelta = None):
     payload=data.copy()
-
+    payload["tv"]=tv
     expiry=datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     payload.update({"exp":expiry})
 
     encoded_payload=jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
     return encoded_payload
-
 
 def decode_access_token(token: str):
     try:
@@ -44,7 +40,6 @@ def decode_access_token(token: str):
         print(str(err))
         return None
     
-
 def create_refresh_token(data: dict, expires_delta: timedelta = None):
     payload=data.copy()
 
@@ -54,7 +49,6 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
     encoded_payload=jwt.encode(payload, REFRESH_SECRET_KEY, ALGORITHM)
 
     return encoded_payload
-
 
 def decode_refresh_token(token: str):
     try:

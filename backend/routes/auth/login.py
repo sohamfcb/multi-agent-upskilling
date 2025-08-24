@@ -46,13 +46,13 @@ def register(payload: user.Login, db: Session = Depends(get_db)):
             )
         
         if security.verify_password(hashed=email_or_username.password, plain=payload.password):
-            logger.info(f"User {payload.username} logged in successfully at {datetime.now()}")
+            logger.info(f"User {email_or_username.username or email_or_username.email} logged in successfully at {datetime.now()}")
 
             email_or_username.last_login=datetime.now()
             db.commit()
 
-            token_payload={"sub": email_or_username.username}
-            access_token=security.create_access_token(data=token_payload)
+            token_payload={"sub": email_or_username.username, "tv": email_or_username.token_version}
+            access_token=security.create_access_token(data=token_payload, tv=email_or_username.token_version)
             refresh_token=security.create_refresh_token(data=token_payload)
 
             return {
@@ -61,7 +61,7 @@ def register(payload: user.Login, db: Session = Depends(get_db)):
                 "token_type": "bearer"
             }
 
-        logger.error(f"User {payload.username} entered a wrong password")
+        logger.error(f"User {email_or_username.username or email_or_username.email} entered a wrong password")
         return JSONResponse(
             status_code=400,
             content={
@@ -83,3 +83,27 @@ def register(payload: user.Login, db: Session = Depends(get_db)):
                 "data": None
             }
         )
+    
+@login_route.post("/refresh")
+def refresh(token: user.RefreshTokenSchema):
+    refresh_token=token.refresh_token
+
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="Refresh token missing")
+    
+    decoded=security.decode_refresh_token(token=refresh_token)
+
+    if not decoded:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    
+    username=decoded.get("sub")
+    
+    if not username:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+    
+    new_access_token=security.create_access_token({"sub": username}, tv=decoded.get("tv"))
+
+    return {
+        "new_access_token": new_access_token,
+        "token_type": "bearer"
+    }

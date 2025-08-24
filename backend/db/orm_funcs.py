@@ -55,6 +55,7 @@ class Users(Base):
         nullable=False
     )
     last_login: Mapped[datetime | None]
+    token_version: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
 
     __table_args__ = (
         db.UniqueConstraint("email", name="uq_users_email"),

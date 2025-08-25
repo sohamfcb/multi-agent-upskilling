@@ -50,3 +50,7 @@ class UpdatePassword(BaseModel):
 
 class RefreshTokenSchema(BaseModel):
     refresh_token: str
+
+class VerifySignUp(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, description="6 digit OTP code")

@@ -74,3 +74,4 @@ uvicorn
 
 passlib[bcrypt]
 python-jose
+resend

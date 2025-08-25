@@ -43,7 +43,7 @@ from sqlalchemy.orm import Session
 
 from core.jwt_config import decode_access_token
 from core.token_blacklist import token_in_blacklist
-from db.orm_funcs import Users, get_db
+from db.models.orm_funcs import Users, get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 

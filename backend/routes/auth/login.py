@@ -5,11 +5,11 @@ from fastapi import (
     Depends
 )
 from fastapi.responses import JSONResponse
-from db.models import (
+from schema import (
     user,
     user_profile
 )
-from db.orm_funcs import (
+from db.models.orm_funcs import (
     SessionLocal,
     Users,
     UserProfile,

@@ -37,10 +37,10 @@ def send_email_otp(email: str, code: str) -> None:
         "Content-Type": "application/json",
     }
     payload = {
-        "from": "onboarding@resend.dev",
+        "from": f"{SENDER_MAIL}",
         "to": email,
-        "subject": "SkillSync code",
-        "text": f"Your SkillSync AI login code is {code}. It expires in 10 minutes. "
+        "subject": "skillSync Code",
+        "text": f"Your skillSync AI login code is {code}. It expires in 10 minutes. "
                     "If you didn’t request this, you can ignore this email.",
         "html": f"""
     <!doctype html>
@@ -48,7 +48,7 @@ def send_email_otp(email: str, code: str) -> None:
     <body style="margin:0;padding:0;background:#f6f7f9;">
         <!-- preheader (shows in inbox preview) -->
         <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
-        Your one-time login code for Career AI is {code}. Expires in 10 minutes.
+        Your one-time login code for skillSync is {code}. Expires in 10 minutes.
         </div>
 
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f6f7f9;">
@@ -57,7 +57,7 @@ def send_email_otp(email: str, code: str) -> None:
             <!-- Header -->
             <tr>
                 <td style="padding:20px 24px;background:#0f172a;color:#ffffff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                <h1 style="margin:0;font-size:18px;font-weight:700;">Career AI</h1>
+                <h1 style="margin:0;font-size:18px;font-weight:700;">skillSync AI</h1>
                 <div style="font-size:12px;opacity:.9;margin-top:4px;">Sign in securely</div>
                 </td>
             </tr>
@@ -113,7 +113,7 @@ def send_email_otp(email: str, code: str) -> None:
                 <td style="padding:14px 24px;background:#fafafa;border-top:1px solid #eef2f7;
                         font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
                 <p style="margin:0;color:#94a3b8;font-size:12px;">
-                    Sent by Career AI • This is an automated message
+                    Sent by SkillSync AI • This is an automated message
                 </p>
                 </td>
             </tr>

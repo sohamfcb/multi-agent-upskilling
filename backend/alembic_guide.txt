@@ -1,3 +1,6 @@
 make init
 make run
 make db-dump
+
+whenever a change is made in a db (new user or some schema change)
+make alembic-revision

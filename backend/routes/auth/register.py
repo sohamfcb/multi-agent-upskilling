@@ -30,7 +30,7 @@ logger=get_logger("register")
 
 COOLDOWN_SECONDS=int(os.getenv("COOLDOWN_SECONDS"))
 EXPIRY_SECONDS=int(os.getenv("EXPIRY_SECONDS"))
-OTP_LIMIT=int(os.getenv("OTP_LIMIT"))
+OTP_LIMIT=int(os.getenv("OTP_LIMIT","3"))
 
 auth_route=APIRouter(prefix="/auth")
 
@@ -93,44 +93,52 @@ def register(payload: user.UserIn,  db: Session = Depends(get_db)):
 
 @auth_route.post("/verify-signup")
 def verify_signup(body: user.VerifySignUp, db: Session = Depends(get_db)):
-    if body.email not in pending_signups:
-        return JSONResponse(status_code=400,
-            content={"status": False,"message": "no signup pending for this email","data": None}
+    try:
+        pending_signups[body.email]["count"]+=1
+        if body.email not in pending_signups:
+            return JSONResponse(status_code=400,
+                content={"status": False,"message": "no signup pending for this email","data": None}
+            )
+        
+        record = pending_signups[body.email]
+        now = time.time()
+
+        # expiry
+        if now - record["time"] > EXPIRY_SECONDS:
+            del pending_signups[body.email]
+            return JSONResponse(status_code=400,
+                content={"status": False,"message": "code expired","data": None}
+            )    
+            
+        if pending_signups[body.email]["count"]>OTP_LIMIT:
+            del pending_signups[body.email]
+            return return_response(message="Limit reached. Re-login to get a new code.", status_code=400)
+
+        # match
+        if body.code != record["code"]:
+            return JSONResponse(status_code=400,
+                content={"status": False,"message": "invalid code","data": None}
+            )
+
+
+        # success → create user in DB
+        data = record["data"]
+        new_user = Users(
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            email=body.email,
+            username=data["username"],
+            password=data["password"],
+            is_verified=True
         )
-
-    if pending_signups[body.email]["count"]==OTP_LIMIT:
-        return return_response(message="OTP limit reached. Register again.", status_code=400)
-
-    record = pending_signups[body.email]
-    now = time.time()
-
-    # expiry
-    if now - record["time"] > EXPIRY_SECONDS:
+        db.add(new_user)
+        db.commit()
         del pending_signups[body.email]
-        return JSONResponse(status_code=400,
-            content={"status": False,"message": "code expired","data": None}
+
+        return JSONResponse(status_code=200,
+            content={"status": True,"message": "registration complete","data": None}
         )
-
-    # match
-    if body.code != record["code"]:
-        return JSONResponse(status_code=400,
-            content={"status": False,"message": "invalid code","data": None}
-        )
-
-    # ✅ success → create user in DB
-    data = record["data"]
-    new_user = Users(
-        first_name=data["first_name"],
-        last_name=data["last_name"],
-        email=body.email,
-        username=data["username"],
-        password=data["password"],
-        is_verified=True
-    )
-    db.add(new_user)
-    db.commit()
-    del pending_signups[body.email]
-
-    return JSONResponse(status_code=200,
-        content={"status": True,"message": "registration complete","data": None}
-    )
+    
+    except KeyError as ke:
+        logger.error(str(ke))
+        return return_response(message="Please try again.", status_code=400)

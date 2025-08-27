@@ -28,7 +28,7 @@ DB_PORT ?= $(DB_PORT)
 
 # --- Python environment ---
 install:  ## Create venv and install dependencies
-	python3 -m venv venv
+	python -m venv venv
 	$(ACTIVATE) && pip install -r requirements.txt
 
 # --- Alembic helpers ---
@@ -36,7 +36,7 @@ alembic-revision:  ## Create a new Alembic migration. Usage: make alembic-revisi
 ifndef MSG
 	$(error MSG is undefined. Example: make alembic-revision MSG="added new column to users")
 endif
-	python3 -m alembic revision --autogenerate -m "$(MSG)"
+	python -m alembic revision --autogenerate -m "$(MSG)"
 # --- Docker ---
 db-up:  ## Start DB container
 	$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up -d
@@ -53,7 +53,7 @@ wait-for-db:  ## Wait until Postgres is ready
 
 # --- Database ---
 db-migrate:  ## Apply Alembic migrations
-	python3 -m alembic upgrade head
+	python -m alembic upgrade head
 
 # db-dump:  ## Dump schema + data to dump.sql
 # 	docker exec -t $(DB_CONTAINER) pg_dump -U $(DB_USER) -d $(DB_NAME) > dump.sql

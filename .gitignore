@@ -62,3 +62,7 @@ Thumbs.db
 
 uploads/*
 env.txt
+
+backend/db/chatbot.db
+backend/db/chatbot.db-shm
+backend/db/chatbot.db-wal

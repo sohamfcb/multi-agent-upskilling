@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from resend.exceptions import ResendError
 from core.logger_config import get_logger
 
+from services.workflows.agent_model import Chatbot
+
 import requests, json
 
 logger=get_logger(name="otp-verifier")
@@ -16,9 +18,19 @@ load_dotenv()
 RESEND_API_KEY=os.getenv("RESEND_API_KEY")
 SENDER_MAIL=os.getenv("SENDER_MAIL")
 
-print(RESEND_API_KEY)
-
 resend.api_key=RESEND_API_KEY
+
+
+def stream_json(message: str, thread_id: str, _sqlite: bool = True):
+    # bot = Chatbot(model_name="gpt-4o", thread_id=thread_id).build_graph()
+    bot = Chatbot(model_name="gpt-4o").build_graph(_sqlite=_sqlite)
+    for chunk in bot.stream(user_message=message, thread_id=thread_id):
+        yield json.dumps({
+            "thread_id": thread_id,
+            "type": "message_chunk",
+            "content": chunk
+        }) + "\n"
+
 
 def return_response(message: str, status: bool = False, data: Any = None, status_code: int = 200):
     return JSONResponse(

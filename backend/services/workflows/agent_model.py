@@ -6,7 +6,11 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
+from typing import Any, Optional
+
+from helper import get_resume_details
 from services.workflows.tools import get_tools
 
 import sqlite3
@@ -43,6 +47,67 @@ TOOL_NODE = ToolNode(tools=TOOLS)
 
 class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
+    resume_text: Optional[str]
+    resume_parsed: Optional[dict] 
+
+# Insert this wrapper function into agent_model.py
+def get_resume_details_node(state: ChatState) -> dict[str, Any]:
+    """
+    LangGraph node wrapper for helper.get_resume_details.
+    - Looks for resume text in the most recent HumanMessage (or state['resume_text']).
+    - Calls helper.get_resume_details(...) and returns either:
+        {"messages": [AIMessage("...not a resume...")]}   # on invalid doc
+      or
+        {"messages": [AIMessage("...ack...")], "resume_parsed": parsed_result}
+    """
+    messages = state.get("messages", [])
+    # Find latest human message content
+    resume_text = None
+    # Prefer an explicit key if some earlier node inserted it
+    if isinstance(state, dict) and state.get("resume_text"):
+        resume_text = state["resume_text"]
+    else:
+        # find last human message in messages
+        for m in reversed(messages):
+            # msg.type property may exist on your BaseMessage model
+            if getattr(m, "type", None) == "human" or isinstance(m, HumanMessage):
+                resume_text = getattr(m, "content", None)
+                break
+
+    if not resume_text:
+        # no resume text found -> tell user how to upload/attach
+        return {"messages": [AIMessage("I couldn't find the resume text. Please upload or paste your resume content.")]}
+    
+    # call your helper (this can be blocking; LangGraph supports sync node functions)
+    try:
+        parsed = get_resume_details(resume_text, model_name="groq")
+    except Exception as exc:
+        # model or parsing error -> bubble a friendly error
+        return {"messages": [AIMessage(f"Error while parsing resume: {exc}")]}
+    
+    # your get_resume_details returns either a dict with {"message": "..."} for not-resume
+    if isinstance(parsed, dict) and parsed.get("message"):
+        # Send that message as an AIMessage to the user
+        return {"messages": [AIMessage(parsed["message"])]}
+    
+    # otherwise assume parsed is a Pydantic model (CandidateDetails) or dict of parsed fields
+    # Build a short acknowledgement message and return parsed result in state so downstream nodes can use it
+    # Try to safely extract job_role for a helpful reply
+    job_role = ""
+    try:
+        job_role = getattr(parsed, "job_role", "") or parsed.get("job_role", "")
+    except Exception:
+        job_role = ""
+    
+    ack_text = "Resume parsed successfully."
+    if job_role:
+        ack_text += f" Suggested role(s): {job_role}."
+    
+    return {
+        "messages": [AIMessage(ack_text)],
+        "resume_parsed": parsed
+    }
+
 
 class Chatbot:
     def __init__(self, model_name: str):
@@ -62,14 +127,16 @@ class Chatbot:
         graph = StateGraph(ChatState)
 
         graph.add_node("chat_node", self.chat_node)
+        graph.add_node("get_resume_details", get_resume_details_node)
         graph.add_node("tools", TOOL_NODE)
 
-        graph.add_edge(START, "chat_node")
+        graph.add_edge(START, "get_resume_details")
+        graph.add_edge("get_resume_details", "chat_node")
 
         graph.add_conditional_edges("chat_node", tools_condition)
         graph.add_edge("tools", "chat_node")
 
-        # graph.add_edge("chat_node", END)
+        graph.add_edge("chat_node", END)
 
         if _sqlite:
             conn=sqlite3.connect(database="db/chatbot.db", check_same_thread=False)

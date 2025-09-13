@@ -75,5 +75,6 @@ uvicorn
 passlib[bcrypt]
 python-jose
 resend
+python-multipart
 
 alembic

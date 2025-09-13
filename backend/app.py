@@ -3,6 +3,8 @@ from routes.auth.register import auth_route
 from routes.auth.login import login_route
 from routes.auth.logout import logout_route
 from routes.auth.update import update_route
+from routes.core.resume_reader import resume_reader_route
+
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,6 +32,7 @@ app.include_router(login_route)
 app.include_router(logout_route)
 app.include_router(update_route)
 app.include_router(bot_route)
+app.include_router(resume_reader_route)
 
 
 @app.middleware("http")

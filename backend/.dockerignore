@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+venv
+env
+projenv
+.git
+.env
+logs/*
+uploads/*
+*.db

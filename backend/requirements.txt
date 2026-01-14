@@ -1,0 +1,77 @@
+# AI and Machine Learning
+langchain
+langchain-core
+langchain-community
+langchain-groq
+langchain-openai
+langchain-google-genai
+langchain-huggingface
+langgraph
+langgraph.checkpoint.sqlite
+langchain-unstructured
+langchain-tavily
+
+# AI Model Providers
+groq
+openai
+google-generativeai
+
+# Data Processing and Analysis
+numpy
+pandas
+# scikit-learn
+# torch
+# transformers
+# sentence-transformers
+spacy
+
+# Document Processing
+pypdf
+pypdf2
+python-docx
+docx2txt
+PyMuPDF
+unstructured
+unstructured-client
+
+# Vector Storage and Search
+faiss-cpu
+tavily-python
+
+# Web and API
+wikipedia
+youtube-search
+google-api-python-client
+arxiv
+duckduckgo-search
+
+# Development and Testing
+# ipykernel
+# jupyter
+pydantic
+pydantic[email]
+exception
+
+# Visualization
+matplotlib
+seaborn
+# plotly
+
+
+# install spacy web-sm
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz
+
+psycopg2-binary
+sqlalchemy
+
+fastapi
+uvicorn
+
+passlib[bcrypt]
+python-jose
+resend
+python-multipart
+werkzeug
+ddgs
+
+alembic

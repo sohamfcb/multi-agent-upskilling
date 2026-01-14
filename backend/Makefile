@@ -68,7 +68,7 @@ db-restore:  ## Restore from dump.sql
 	$(CAT) dump.sql | docker exec -i $(DB_CONTAINER) psql -U $(DB_USER) -d $(DB_NAME)
 
 db-bootstrap:  ## Full DB reset + migrations
-	$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down -v
+	$(DOCKER_COMPOSE) --env-file $(ENV_FILE) down
 	$(DOCKER_COMPOSE) --env-file $(ENV_FILE) up -d
 	$(MAKE) wait-for-db
 	$(MAKE) db-migrate

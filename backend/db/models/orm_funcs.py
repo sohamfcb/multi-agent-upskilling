@@ -57,6 +57,7 @@ class Users(Base):
     last_login: Mapped[datetime | None]
     token_version: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
     is_verified: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    phone: Mapped[str | None] = mapped_column(db.String(12), nullable=True)
 
     __table_args__ = (
         db.UniqueConstraint("email", name="uq_users_email"),

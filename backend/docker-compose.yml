@@ -1,6 +1,18 @@
 version: "3.9"
 
 services:
+  api:
+    image: sohammmmmmmm/skillsync-backend
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
   db:
     image: ankane/pgvector:latest
     container_name: ${DB_CONTAINER}

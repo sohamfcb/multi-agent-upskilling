@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
 from typing import Any, Optional
 
-from helper import get_resume_details
+from helper import get_resume_details, get_suggestions
 from services.workflows.tools import get_tools
 
 import sqlite3
@@ -49,6 +49,7 @@ class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
     resume_text: Optional[str]
     resume_parsed: Optional[dict] 
+    job_role: Optional[str]
 
 # Insert this wrapper function into agent_model.py
 def get_resume_details_node(state: ChatState) -> dict[str, Any]:
@@ -105,8 +106,13 @@ def get_resume_details_node(state: ChatState) -> dict[str, Any]:
     
     return {
         "messages": [AIMessage(ack_text)],
+        "job_role": job_role,
         "resume_parsed": parsed
     }
+
+
+def get_suggestions_node(state: ChatState) -> dict:
+    parsed=state["resume_parsed"]
 
 
 class Chatbot:
@@ -121,6 +127,9 @@ class Chatbot:
         messages = state['messages']
         response = self.llm.invoke(messages)
         return {"messages": [response]}
+    
+    def fetch_materials_node(self, state: ChatState):
+        pass
 
     # Checkpointer
     def build_graph(self, _sqlite=False):

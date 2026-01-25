@@ -75,3 +75,4 @@ werkzeug
 ddgs
 
 alembic
+prometheus-fastapi-instrumentator

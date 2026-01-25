@@ -13,11 +13,15 @@ from core.logger_config import get_logger, init_logging
 from core.auth_dependency import get_current_user
 from routes.core.chatbot import bot_route
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 logger=get_logger("uvicorn.access")
 
 init_logging()
 
 app=FastAPI()
+
+Instrumentator().instrument(app=app).expose(app=app)
 
 app.add_middleware(
     CORSMiddleware,

@@ -66,3 +66,7 @@ env.txt
 backend/db/chatbot.db
 backend/db/chatbot.db-shm
 backend/db/chatbot.db-wal
+
+backend/dump.sql
+backend/restore_db_data.txt
+backend/db_dump.sh
